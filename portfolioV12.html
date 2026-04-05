@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Saksham Mishra | High-CTR Designs</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0D0D0D;
+            --bg-secondary: #111111;
+            --text-primary: #FFFFFF;
+            --text-secondary: #AAAAAA;
+            --accent: #FFD600;   
+            --accent-glow: rgba(255, 214, 0, 0.4);
+            --card-bg: #151515;
+            --transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
+
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            width: 100%;
+            line-height: 1.6;
+        }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+        /* --- Navigation & Currency Switcher --- */
+        nav {
+            position: fixed; top: 0; width: 100%;
+            background: rgba(13, 13, 13, 0.9);
+            backdrop-filter: blur(15px);
+            z-index: 1000;
+            border-bottom: 1px solid #222;
+        }
+        .nav-content { height: 80px; display: flex; justify-content: space-between; align-items: center; }
+        .brand-area { display: flex; flex-direction: column; gap: 4px; }
+        .logo { font-size: 1.3rem; font-weight: 800; color: var(--accent); text-decoration: none; letter-spacing: -0.5px; }
+        
+        .currency-switcher {
+            position: relative;
+            display: inline-block;
+            align-self: flex-start;
+        }
+        .currency-btn {
+            background: #1a1a1a;
+            color: var(--text-secondary);
+            border: 1px solid #333;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .currency-btn:hover { border-color: var(--accent); color: #fff; }
+        .currency-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #151515;
+            border: 1px solid #333;
+            border-radius: 8px;
+            margin-top: 8px;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 1001;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .currency-dropdown.show { display: flex; }
+        .currency-option {
+            padding: 10px 20px;
+            font-size: 0.75rem;
+            color: #fff;
+            cursor: pointer;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+        .currency-option:hover { background: var(--accent); color: #000; }
+
+        .nav-links { display: flex; gap: 25px; align-items: center; }
+        .nav-links a { color: #fff; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: var(--transition); }
+        .nav-links a:hover { color: var(--accent); }
+        
+        .hamburger { display: none; cursor: pointer; flex-direction: column; gap: 6px; padding: 10px; }
+        .hamburger span { width: 28px; height: 3px; background: var(--accent); border-radius: 2px; transition: 0.3s; }
+
+        /* --- Pricing Logic Display --- */
+        .price-usd { display: none; }
+        .currency-usd .price-usd { display: inline; }
+        .currency-usd .price-inr { display: none; }
+
+        /* --- Sticky Mobile CTA --- */
+        .mobile-sticky-cta {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: rgba(13, 13, 13, 0.95);
+            backdrop-filter: blur(15px);
+            padding: 12px 20px;
+            border-top: 1px solid #333;
+            z-index: 2000;
+            display: none;
+        }
+
+        /* --- Hero --- */
+        .hero { min-height: 80vh; display: flex; align-items: center; justify-content: center; text-align: center; padding-top: 100px; }
+        .hero h1 {   
+            font-size: clamp(2.2rem, 7vw, 4.2rem);   
+            font-family: 'Montserrat';  
+            margin-bottom: 20px;  
+            background: linear-gradient(135deg, #fff 60%, var(--accent));  
+            -webkit-background-clip: text;  
+            -webkit-text-fill-color: transparent;
+            line-height: 1.1;
+        }
+
+        .main-btn {   
+            background: var(--accent); color: #000; padding: 16px 40px;   
+            border-radius: 8px; text-decoration: none; font-weight: 800;  
+            display: inline-block; transition: var(--transition);
+            border: none; cursor: pointer; text-align: center;
+        }
+        .main-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 30px var(--accent-glow); }
+
+        /* --- Stats Bar --- */
+        .results-bar { padding: 40px 0; margin-top: -40px; position: relative; z-index: 10; }
+        .stats-grid { 
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; 
+            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1); padding: 30px; border-radius: 20px;
+        }
+        .stat-item { text-align: center; }
+        .stat-value { display: block; font-size: 1.8rem; font-weight: 800; color: var(--accent); font-family: 'Montserrat'; }
+        .stat-label { font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; }
+
+        /* --- Carousel (Hover Pause logic) --- */
+        .carousel-section { padding: 80px 0; background: var(--bg-secondary); overflow: hidden; width: 100%; }
+        .carousel-wrapper { display: flex; width: max-content; }
+        .carousel-track { display: flex; gap: 20px; padding-right: 20px; }
+        
+        .row-left { animation: slideL 50s linear infinite; }
+        .row-right { animation: slideR 50s linear infinite; }
+
+        .carousel-section:hover .row-left,
+        .carousel-section:hover .row-right {
+            animation-play-state: paused;
+        }
+
+        @keyframes slideL { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        @keyframes slideR { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+
+        .thumb-box {   
+            width: 320px; aspect-ratio: 16/9; background: #222; border-radius: 12px; 
+            overflow: hidden; flex-shrink: 0; transition: var(--transition); border: 2px solid transparent;
+        }
+        .thumb-box img { width: 100%; height: 100%; object-fit: cover; }
+        .thumb-box:hover { transform: scale(1.05); border-color: var(--accent); }
+
+        /* --- Pricing --- */
+        .pricing { padding: 80px 0; }
+        .pricing-grid {  
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;  
+            max-width: 900px; margin: 0 auto;  
+        }
+        .price-card {  
+            background: var(--card-bg); padding: 40px 15px 30px; border-radius: 16px;  
+            text-align: center; border: 1px solid #222; transition: var(--transition);
+            position: relative; display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .price-card.featured { 
+            border-color: var(--accent); 
+            background: #1a1a0a; 
+            box-shadow: 0 0 30px rgba(255, 214, 0, 0.15); 
+            transform: scale(1.02);
+        }
+        
+        .popular-badge {
+            position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+            background: var(--accent); color: #000; padding: 4px 12px; border-radius: 20px;
+            font-size: 0.65rem; font-weight: 800; white-space: nowrap;
+        }
+
+        .current-price { font-size: 1.8rem; color: var(--accent); font-weight: 800; display: block; }
+        .unit-price { font-size: 0.75rem; color: #666; margin-top: 2px; display: block; font-weight: 600; }
+        .old-price { font-size: 0.8rem; color: #555; text-decoration: line-through; }
+        
+        .pricing-features { 
+            font-size: 0.65rem; color: #888; margin-top: 15px; 
+            padding-top: 15px; border-top: 1px solid #222;
+        }
+
+        /* Monthly Plan Style */
+        .monthly-plan {
+            grid-column: span 2;
+            margin-top: 15px;
+            padding: 25px 30px;
+            text-align: left;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .monthly-plan-content { flex: 1; }
+        .monthly-plan-cta { margin-left: 20px; }
+
+        /* --- Testimonials --- */
+        .testimonial-card {
+            width: 300px; background: var(--card-bg); border: 1px solid #222;
+            border-radius: 16px; padding: 20px; flex-shrink: 0;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .stars { display: flex; gap: 2px; color: var(--accent); font-size: 1rem; }
+        .testimonial-text { color: var(--text-secondary); font-size: 0.9rem; font-style: italic; }
+        .testimonial-name { color: #fff; font-weight: 700; font-size: 0.8rem; }
+
+        /* --- FAQ --- */
+        .faq { padding: 80px 0; max-width: 800px; margin: 0 auto; }
+        .faq-item { border-bottom: 1px solid #222; }
+        .faq-question { 
+            width: 100%; padding: 20px 0; background: none; border: none; 
+            color: #fff; text-align: left; font-size: 1rem; font-weight: 600; 
+            cursor: pointer; display: flex; justify-content: space-between; 
+        }
+        .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; color: var(--text-secondary); font-size: 0.9rem; }
+        .faq-item.active .faq-answer { max-height: 300px; padding-bottom: 20px; }
+
+        /* --- Contact --- */
+        .contact-section { padding: 80px 0; border-top: 1px solid #222; margin-bottom: 80px; }
+        .contact-links { 
+            display: flex; 
+            flex-direction: row; 
+            justify-content: center; 
+            gap: 10px; 
+            margin-top: 30px; 
+        }
+        .contact-box { 
+            text-decoration: none; 
+            color: #fff; 
+            border: 1px solid #333; 
+            padding: 15px 5px; 
+            border-radius: 12px; 
+            transition: 0.3s; 
+            flex: 1; 
+            max-width: 50%;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            text-align: center;
+        }
+        .contact-box h4 { font-size: 0.85rem; }
+        .contact-box span { 
+            display: block; 
+            width: 100%; 
+            word-wrap: break-word; 
+            overflow-wrap: break-word; 
+            font-size: 0.65rem; 
+            margin-top: 5px; 
+            opacity: 0.7; 
+        }
+        .contact-box:hover { border-color: var(--accent); background: rgba(255, 214, 0, 0.05); }
+
+        @media (max-width: 768px) {
+            .mobile-sticky-cta { display: block; }
+            .nav-links { display: none; width: 100%; flex-direction: column; position: absolute; top: 80px; left: 0; background: #0d0d0d; padding: 20px; border-bottom: 1px solid #222; }
+            .nav-links.active { display: flex; }
+            .hamburger { display: flex; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .pricing-grid { gap: 10px; }
+            .price-card { padding: 30px 10px 20px; }
+            .current-price { font-size: 1.4rem; }
+            .monthly-plan { grid-column: span 2; flex-direction: column; text-align: center; }
+            .monthly-plan-cta { margin-left: 0; margin-top: 15px; width: 100%; }
+        }
+    </style>
+</head>
+<body class="currency-inr">
+
+<div class="mobile-sticky-cta">
+    <a href="https://www.instagram.com/sakshammishracreates/" target="_blank" class="main-btn" style="width: 100%; padding: 12px 0;">Get Thumbnail Now</a>
+</div>
+
+<nav>
+    <div class="container nav-content">
+        <div class="brand-area">
+            <a href="#" class="logo">Saksham Mishra</a>
+            <div class="currency-switcher">
+                <button class="currency-btn" id="currency-toggle">🇮🇳 INR ▾</button>
+                <div class="currency-dropdown" id="currency-dropdown">
+                    <div class="currency-option" onclick="switchCurrency('INR')">🇮🇳 INR ›</div>
+                    <div class="currency-option" onclick="switchCurrency('USD')">🇺🇸 USD ›</div>
+                </div>
+            </div>
+        </div>
+        <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+            <span></span><span></span><span></span>
+        </div>
+        <div class="nav-links" id="nav-links">
+            <a href="#home">Home</a>
+            <a href="#portfolio">Portfolio</a>
+            <a href="#pricing">Pricing</a>
+            <a href="https://www.instagram.com/sakshammishracreates/" target="_blank" class="main-btn" style="padding: 10px 20px; font-size: 0.8rem;">Contact</a>
+        </div>
+    </div>
+</nav>
+
+<section class="hero" id="home">
+    <div class="container">
+        <p style="color:var(--accent); font-weight:700; margin-bottom:10px; text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem;">⚡ Trusted by Creators</p>
+        <h1>Get More Clicks, Views & Subscribers — With <br>High-CTR Thumbnails</h1>
+        <p style="color: var(--text-secondary); max-width: 600px; margin: 0 auto 30px; font-size: 1rem;">I design thumbnails engineered to increase CTR, boost views, and grow your channel faster - not just look good.</p>
+        <a href="#pricing" class="main-btn">Start Your Growth</a>
+    </div>
+</section>
+
+<section class="results-bar">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-item"><span class="stat-value">3.2M+</span><span class="stat-label">Total Views</span></div>
+            <div class="stat-item"><span class="stat-value">Upto 5X</span><span class="stat-label">Higher CTR</span></div>
+            <div class="stat-item"><span class="stat-value">25+</span><span class="stat-label">Creators Satisfied</span></div>
+        </div>
+    </div>
+</section>
+
+<section class="carousel-section" id="portfolio">
+    <div class="container" style="margin-bottom: 40px; text-align: center;">
+        <h2 style="font-family:'Montserrat'; font-size: 1.8rem;">Recent Masterpieces</h2>
+    </div>
+    <div class="carousel-wrapper row-left">
+        <div class="carousel-track">
+            <div class="thumb-box"><img src="https://picsum.photos/seed/11/600/337" alt="P1"></div>
+            <div class="thumb-box"><img src="https://picsum.photos/seed/12/600/337" alt="P2"></div>
+            <div class="thumb-box"><img src="https://picsum.photos/seed/13/600/337" alt="P3"></div>
+            <div class="thumb-box"><img src="https://picsum.photos/seed/14/600/337" alt="P4"></div>
+            <div class="thumb-box"><img src="https://picsum.photos/seed/15/600/337" alt="P5"></div>
+            <div class="thumb-box"><img src="https://picsum.photos/seed/11/600/337" alt="P1"></div>
+            <div class="thumb-box"><img src="https://picsum.photos/seed/12/600/337" alt="P2"></div>
+            <div class="thumb-box"><img src="https://picsum.photos/seed/13/600/337" alt="P3"></div>
+            <div class="thumb-box"><img src="https://picsum.photos/seed/14/600/337" alt="P4"></div>
+            <div class="thumb-box"><img src="https://picsum.photos/seed/15/600/337" alt="P5"></div>
+        </div>
+    </div>
+    <div class="carousel-wrapper row-right" style="margin-top: 20px;">
+        <div class="carousel-track">
+            <div class="thumb-box"><img src="https://picsum.photos/seed/21/600/337" alt="P6"></div>
+            <div class="thumb-box"><img src="https://picsum.photos/seed/22/600/337" alt="P7"></div>
+            <div class="thumb-box"><img src="https://picsum.photos/seed/23/600/337" alt="P8"></div>
+            <div class="thumb-box"><img src="https://picsum.photos/seed/24/600/337" alt="P9"></div>
+            <div class="thumb-box"><img src="https://picsum.photos/seed/25/600/337" alt="P10"></div>
+            <div class="thumb-box"><img src="https://picsum.photos/seed/21/600/337" alt="P6"></div>
+            <div class="thumb-box"><img src="https://picsum.photos/seed/22/600/337" alt="P7"></div>
+            <div class="thumb-box"><img src="https://picsum.photos/seed/23/600/337" alt="P8"></div>
+            <div class="thumb-box"><img src="https://picsum.photos/seed/24/600/337" alt="P9"></div>
+            <div class="thumb-box"><img src="https://picsum.photos/seed/25/600/337" alt="P10"></div>
+        </div>
+    </div>
+</section>
+
+<section class="carousel-section">
+    <div class="container" style="text-align: center; margin-bottom: 40px;">
+        <h2 style="font-family:'Montserrat'; font-size: 1.8rem;">What Creators Say</h2>
+    </div>
+    <div class="carousel-wrapper row-left">
+        <div class="carousel-track" id="test-row-1"></div>
+    </div>
+    <div class="carousel-wrapper row-right" style="margin-top: 20px;">
+        <div class="carousel-track" id="test-row-2"></div>
+    </div>
+</section>
+
+<section class="pricing" id="pricing">
+    <div class="container">
+        <h2 style="text-align:center; margin-bottom:40px; font-family:'Montserrat'; font-size: 2rem;">Select Your Package</h2>
+        <div class="pricing-grid">
+            <div class="price-card">
+                <p style="font-size:0.7rem; opacity:0.6;">KICKSTART (1 PACK)</p>
+                <span class="current-price">
+                    <span class="price-inr">₹199</span>
+                    <span class="price-usd">$4.99</span>
+                </span>
+                <span class="old-price">
+                    <span class="price-inr">₹299</span>
+                    <span class="price-usd">$7.99</span>
+                </span>
+                <div class="pricing-features">3 Revisions • Fast Delivery • Views Boost</div>
+                <a href="https://www.instagram.com/sakshammishracreates/" target="_blank" class="main-btn" style="width:100%; padding:10px; margin-top:15px; font-size:0.8rem;">Order</a>
+            </div>
+
+            <div class="price-card">
+                <p style="font-size:0.7rem; opacity:0.6;">STARTER (3 PACK)</p>
+                <span class="current-price">
+                    <span class="price-inr">₹499</span>
+                    <span class="price-usd">$14.99</span>
+                </span>
+                <span class="old-price">
+                    <span class="price-inr">₹799</span>
+                    <span class="price-usd">$23.99</span>
+                </span>
+                <span class="unit-price">
+                    <span class="price-inr">(₹166 each)</span>
+                    <span class="price-usd">($5 each)</span>
+                </span>
+                <div class="pricing-features">3 Revisions • Fast Delivery • Views Boost</div>
+                <a href="https://www.instagram.com/sakshammishracreates/" target="_blank" class="main-btn" style="width:100%; padding:10px; margin-top:15px; font-size:0.8rem;">Grab</a>
+            </div>
+
+            <div class="price-card featured">
+                <div class="popular-badge">🔥 MOST POPULAR</div>
+                <p style="font-size:0.7rem; color:var(--accent);">GROWTH (5 PACK)</p>
+                <span class="current-price">
+                    <span class="price-inr">₹799</span>
+                    <span class="price-usd">$19.99</span>
+                </span>
+                <span class="old-price">
+                    <span class="price-inr">₹1299</span>
+                    <span class="price-usd">$34.99</span>
+                </span>
+                <span class="unit-price">
+                    <span class="price-inr">(₹159 each)</span>
+                    <span class="price-usd">($4 each)</span>
+                </span>
+                <div class="pricing-features">Unlimited Revisions • Fast Delivery • CTR Optimization</div>
+                <a href="https://www.instagram.com/sakshammishracreates/" target="_blank" class="main-btn" style="width:100%; padding:10px; margin-top:15px; font-size:0.8rem;">Order</a>
+            </div>
+
+            <div class="price-card">
+                <p style="font-size:0.7rem; opacity:0.6;">PRO (10 PACK)</p>
+                <span class="current-price">
+                    <span class="price-inr">₹1499</span>
+                    <span class="price-usd">$34.99</span>
+                </span>
+                <span class="old-price">
+                    <span class="price-inr">₹1999</span>
+                    <span class="price-usd">$49.99</span>
+                </span>
+                <span class="unit-price">
+                    <span class="price-inr">(₹150 each)</span>
+                    <span class="price-usd">($3.5 each)</span>
+                </span>
+                <div class="pricing-features">Unlimited Revisions • Priority Support • Max Growth</div>
+                <a href="https://www.instagram.com/sakshammishracreates/" target="_blank" class="main-btn" style="width:100%; padding:10px; margin-top:15px; font-size:0.8rem;">Order</a>
+            </div>
+
+            <div class="price-card monthly-plan">
+                <div class="monthly-plan-content">
+                    <p style="font-size:0.8rem; font-weight:800; color:var(--accent); margin-bottom: 5px;">FOR SERIOUS CREATORS</p>
+                    <p style="font-size:0.7rem; opacity:0.6; text-transform: uppercase;">MONTHLY CREATOR PLAN</p>
+                    <span class="current-price">
+                        <span class="price-inr">₹4,999/mo</span>
+                        <span class="price-usd">$79/mo</span>
+                    </span>
+                    <span class="unit-price">
+                        <span class="price-inr">₹125 per thumbnail (Best Value)</span>
+                        <span class="price-usd">$2 per thumbnail (Best Value)</span>
+                    </span>
+                    <div class="pricing-features" style="border:none; padding:0; margin-top:10px;">40 Thumbnails • Priority Delivery • CTR Strategy Support • Best For Consistent Growth</div>
+                </div>
+                <div class="monthly-plan-cta">
+                    <a href="https://www.instagram.com/sakshammishracreates/" target="_blank" class="main-btn" style="padding:15px 30px; font-size:0.9rem;">Join Plan</a>
+                </div>
+            </div>
+        </div>
+        <p style="text-align: center; margin-top: 25px; color: var(--text-secondary); font-size: 0.9rem; font-weight: 500;">
+            💡 Not satisfied? I’ll revise until you LOVE it.
+            ⚡ Fast Delivery Under 24 Hours 
+        </p>
+    </div>
+</section>
+
+<section class="faq">
+    <div class="container">
+        <h2 style="margin-bottom:30px; font-family:'Montserrat';">Frequently Asked Questions</h2>
+        <div class="faq-item">
+            <button class="faq-question">I struggle to create engaging thumbnails — how can you help? <span>+</span></button>
+            <div class="faq-answer"><p>We study your niche and use color theory + psychological triggers to make people stop scrolling and click your video.</p></div>
+        </div>
+        <div class="faq-item">
+            <button class="faq-question">What services do you offer? <span>+</span></button>
+            <div class="faq-answer"><p>Currently: High-CTR Thumbnails, Channel Logos, and Banners. Video editing is coming soon.</p></div>
+        </div>
+        <div class="faq-item">
+            <button class="faq-question">How do you ensure timely delivery? <span>+</span></button>
+            <div class="faq-answer"><p>We maintain a strict 24-48h workflow. Once you provide the video details, your draft enters production immediately.</p></div>
+        </div>
+        <div class="faq-item">
+            <button class="faq-question">Do you offer revisions? <span>+</span></button>
+            <div class="faq-answer"><p>Yes! We offer revisions to ensure the thumbnail aligns perfectly with your video's message.</p></div>
+        </div>
+        <div class="faq-item">
+                 <button class="faq-question">Can you design for any niche? <span>+</span></button>
+            <div class="faq-answer"><p>Yes. From high-energy Gaming and Cricket match highlights to clean Tech reviews and Lifestyle vlogs.</p></div>
+        </div>
+        <div class="faq-item">
+            <button class="faq-question">Which software do you use? <span>+</span></button>
+            <div class="faq-answer"><p>We primarily use Adobe Photoshop combined with AI-enhancement tools for maximum realism and sharpness.</p></div>
+        </div>
+        <div class="faq-item">
+            <button class="faq-question">What information do you need from me? <span>+</span></button>
+            <div class="faq-answer"><p>Simply the video title, a brief summary, and any specific images or raw screenshots you want included.</p></div>
+        </div>
+        <div class="faq-item">
+            <button class="faq-question">Is there a bulk discount? <span>+</span></button>
+            <div class="faq-answer"><p>Our 'Pro' and 'Growth' bundles are already priced at a significant discount compared to single orders!</p></div>
+        </div>
+    </div>
+</section>
+
+<section class="contact-section" id="contact">
+    <div class="container">
+        <h2 style="font-family: 'Montserrat'; font-size: 2rem; text-align: center;">Let's Work Together</h2>
+        <div class="contact-links">
+            <a href="https://www.instagram.com/sakshammishracreates/" target="_blank" class="contact-box">
+                <h4>Instagram</h4>
+                <span>@sakshammishracreates</span>
+            </a>
+            <a href="mailto:sakshammishra.creates@gmail.com" class="contact-box">
+                <h4>Email Me</h4>
+                <span>sakshammishra.creates@gmail.com</span>
+            </a>
+        </div>
+        <p style="text-align: center; margin-top: 20px; color: var(--accent); font-size: 0.85rem; font-weight: 600;">
+            ⚡ Usually replies within 1–3 hours
+        </p>
+    </div>
+</section>
+
+<script>
+    // Global State
+    let currentCurrency = "INR";
+
+    function toggleMenu() {
+        document.getElementById('nav-links').classList.toggle('active');
+    }
+
+    // Currency Switcher Logic
+    const currencyToggle = document.getElementById('currency-toggle');
+    const currencyDropdown = document.getElementById('currency-dropdown');
+
+    currencyToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        currencyDropdown.classList.toggle('show');
+    });
+
+    document.addEventListener('click', () => {
+        currencyDropdown.classList.remove('show');
+    });
+
+    function switchCurrency(code) {
+        currentCurrency = code;
+        const body = document.body;
+        
+        // Update Class for CSS toggling
+        if(code === 'USD') {
+            body.classList.remove('currency-inr');
+            body.classList.add('currency-usd');
+            currencyToggle.innerHTML = "🇺🇸 USD ▾";
+        } else {
+            body.classList.remove('currency-usd');
+            body.classList.add('currency-inr');
+            currencyToggle.innerHTML = "🇮🇳 INR ▾";
+        }
+        
+        currencyDropdown.classList.remove('show');
+    }
+
+    document.querySelectorAll('.faq-question').forEach(button => {
+        button.addEventListener('click', () => {
+            const faqItem = button.parentElement;
+            faqItem.classList.toggle('active');
+            button.querySelector('span').textContent = faqItem.classList.contains('active') ? '-' : '+';
+        });
+    });
+
+    const tests = [
+        {name: "Aryan Sharma", text: "Went from 3% to almost 8% CTR. Didn't expect this level tbh.", stars: 4},
+        {name: "Rohit Kumar", text: "First time my video crossed 100K. Thumbnail carried hard.", stars: 5},
+        {name: "Ankit Verma", text: "Bro understands YouTube psychology, not just design.", stars: 4},
+        {name: "Harsh Patel", text: "Better than designers I paid ₹1000+ before.", stars: 3.5},
+        {name: "Ishaan Gupta", text: "The lightning and colors are just next level.", stars: 5},
+        {name: "Deepak Jha", text: "Best for gaming thumbnails in India.", stars: 4.5},
+        {name: "Vikram Singh", text: "Very professional and fast delivery.", stars: 5},
+        {name: "Sanjay Mehra", text: "My views doubled in a week. Highly recommended.", stars: 4},
+        {name: "Rahul Yadav", text: "Perfectly captured the match tension.", stars: 5},
+        {name: "Amit Pandey", text: "Great quality for this price point.", stars: 4}
+    ];
+
+    function createCard(item) {
+        let stars = '★'.repeat(Math.floor(item.stars));
+        return `<div class="testimonial-card"><div class="stars">${stars}</div><p class="testimonial-text">“${item.text}”</p><p class="testimonial-name">${item.name}</p></div>`;
+    }
+
+    const row1 = document.getElementById('test-row-1');
+    const row2 = document.getElementById('test-row-2');
+    
+    let h1 = tests.slice(0, 5).map(createCard).join('');
+    let h2 = tests.slice(5, 10).map(createCard).join('');
+    
+    row1.innerHTML = h1 + h1;
+    row2.innerHTML = h2 + h2;
+</script>
+
+</body>
+</html>
